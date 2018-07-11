@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">BixBack</string>
+    <string name="app_desc">Override Bixby key of Galaxy Devices</string>
     <string name="service_description">This service has the only purpose for scanning for Bixby, and pressing the "back" key on any activity.
     For this to work, you must grant permissions via ADB. The command is as follows:
     \n\nadb shell pm grant com.draco.bixback android.permission.READ_LOGS\n\nThen kill the app from settings and enable the accessibility service.</string>
     <string name="enable_in_accessibility">Enable Service In Accessibility</string>
     <string name="open_accessibility">Open Accessibility</string>
+    <string name="restart">Restart App</string>
 
     <string name="back">Back</string>
     <string name="home">Home</string>
@@ -14,4 +16,5 @@
     <string name="power_dialog">Power Dialog</string>
     <string name="toggle_split_screen">Split Screen</string>
     <string name="flash">Flash</string>
+    <string name="assistant">Google Assistant</string>
 </resources>

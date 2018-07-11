@@ -2,6 +2,7 @@ package com.draco.bixback
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.AsyncTask
@@ -13,6 +14,14 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 import java.util.*
+import android.content.pm.PackageManager
+import android.app.AppOpsManager
+import android.content.pm.ApplicationInfo
+import android.widget.Toast
+
+
+
+
 
 class AccessibilityService : AccessibilityService() {
 
@@ -25,7 +34,7 @@ class AccessibilityService : AccessibilityService() {
     private val screenshotExclude3 = "finishDrawingLocked"
 
     private val minSpace = 300 // minimum time before next press can be registered
-    private val timerMs: Long = 100 // how many ms to scan for the most recent logs
+    private val timerMs: Long = 1 // how many ms to scan for the most recent logs
     private var lastOccurrence: Long = 0 // keep track of the time since the last press occurred (for minSpace)
 
     private var torchState = false
@@ -38,10 +47,10 @@ class AccessibilityService : AccessibilityService() {
         val prefs = getSharedPreferences("bixBackPrefs", Context.MODE_PRIVATE)
         val action = prefs.getString("action", "back")
 
-        if (action == "flash") {
-            toggleTorch()
-        } else {
-            GlobalTask(this, action).execute()
+        when (action) {
+            "flash" -> toggleTorch()
+            "assistant" -> openAssistant()
+            else -> GlobalTask(this, action).execute()
         }
     }
 
@@ -57,14 +66,19 @@ class AccessibilityService : AccessibilityService() {
         }
     }
 
+    private fun openAssistant(){
+        startActivity(Intent(Intent.ACTION_VOICE_COMMAND).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
     private fun getBixbyLogs() {
         // Make sure keypress doesn't happen too soon
         if (Calendar.getInstance().timeInMillis - lastOccurrence >= minSpace) {
             val bixbyLogCommand = run(logcatCommand)
-            if (bixbyLogCommand.contains(bixLogKeyword) && bixbyLogCommand.contains(bixPostLogKeyword) &&
-                    !bixbyLogCommand.contains(volumeExclude) &&
-                    !bixbyLogCommand.contains(screenshotExclude) &&
-                    !bixbyLogCommand.contains(screenshotExclude2) &&
+//            if ((bixbyLogCommand.contains(bixLogKeyword) or bixbyLogCommand.contains(bixPostLogKeyword)) and
+            if (bixbyLogCommand.contains(bixLogKeyword) and
+                    !bixbyLogCommand.contains(volumeExclude) and
+                    !bixbyLogCommand.contains(screenshotExclude) and
+                    !bixbyLogCommand.contains(screenshotExclude2) and
                     !bixbyLogCommand.contains(screenshotExclude3)) {
                 bixPressFun()
                 lastOccurrence = Calendar.getInstance().timeInMillis
@@ -120,4 +134,5 @@ class AccessibilityService : AccessibilityService() {
             throw RuntimeException(e)
         }
     }
+
 }
